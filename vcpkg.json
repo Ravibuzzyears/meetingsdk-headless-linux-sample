@@ -2,6 +2,7 @@
   "name": "meeting-sdk-linux-sample",
   "version": "1",
   "dependencies": [
+    "openssl",
     "ada-url",
     "cli11",
     "jwt-cpp"

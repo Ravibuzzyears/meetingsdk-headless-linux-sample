@@ -24,6 +24,8 @@ pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0)
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
+find_package(OpenSSL REQUIRED)
+
 include_directories(${ZOOM_SDK}/h)
 link_directories(${ZOOM_SDK} ${ZOOM_SDK})
 link_directories(${ZOOM_SDK} ${ZOOM_SDK}/qt_libs/**)
@@ -55,7 +57,7 @@ add_executable(zoomsdk src/main.cpp
 
 
 target_include_directories(zoomsdk PRIVATE ${JWT_CPP_INCLUDE_DIRS})
-target_link_libraries(zoomsdk PRIVATE meetingsdk ada::ada CLI11::CLI11 PkgConfig::deps ${OpenCV_LIBS} ${X11_LIBRARIES})
+target_link_libraries(zoomsdk PRIVATE meetingsdk ada::ada CLI11::CLI11 PkgConfig::deps ${OpenCV_LIBS} ${X11_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto)
 
 
 

@@ -1,8 +1,14 @@
 services:
   zoomsdk: &zoomsdk
-    build: ./
+    build:
+      context: .
+      dockerfile: Dockerfile
     platform: linux/amd64
     volumes:
-     - .:/tmp/meeting-sdk-linux-sample
+      - ./lib:/tmp/meeting-sdk-linux-sample/lib
+      - ./src:/tmp/meeting-sdk-linux-sample/src
+      - ./CMakeLists.txt:/tmp/meeting-sdk-linux-sample/CMakeLists.txt
+      - ./vcpkg.json:/tmp/meeting-sdk-linux-sample/vcpkg.json
+      - ./config.toml:/tmp/meeting-sdk-linux-sample/config.toml
     ports:
       - "3000:3000"

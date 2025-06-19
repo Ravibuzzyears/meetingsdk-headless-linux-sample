@@ -38,32 +38,41 @@ RUN apt-get update  \
     libgl1-mesa-dri \
     libxfixes3 \
     linux-libc-dev \
-    pkgconf \
     tar \
     unzip \
-    zip
+    zip \
+    pkg-config \
+    gcc-12 \
+    g++-12 \
+    pciutils
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
 
 # Install ALSA
 RUN apt-get install -y libasound2 libasound2-plugins alsa alsa-utils alsa-oss
 
 # Install Pulseaudio
-RUN apt-get install -y  pulseaudio pulseaudio-utils
+RUN apt-get install -y pulseaudio pulseaudio-utils
 
-FROM base AS deps
+# Install vcpkg
+RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg \
+    && /opt/vcpkg/bootstrap-vcpkg.sh
 
-ENV TINI_VERSION v0.19.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
+# Add vcpkg to PATH
+ENV PATH="/opt/vcpkg:${PATH}"
 
-WORKDIR /opt
-RUN git clone --depth 1 https://github.com/Microsoft/vcpkg.git \
-    && ./vcpkg/bootstrap-vcpkg.sh -disableMetrics \
-    && ln -s /opt/vcpkg/vcpkg /usr/local/bin/vcpkg \
-    && vcpkg install vcpkg-cmake
+# Copy project files
+COPY . .
 
-FROM deps AS build
+# Configure and build with CMake
+RUN cmake -B build -S . \
+    -DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake \
+    && cmake --build build
 
-WORKDIR $cwd
-ENTRYPOINT ["/tini", "--", "./bin/entry.sh"]
+# Set the entry point
+COPY bin/entry.sh /entry.sh
+RUN chmod +x /entry.sh
+ENTRYPOINT ["/entry.sh"]
 
 
